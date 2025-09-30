@@ -1,236 +1,233 @@
-import { createRequest, createResponse } from 'node-mocks-http'
-import { budgets } from "../../mocks/budget"
-import { BudgetController } from '../../../controllers/BudgetController'
-import Budget from '../../../models/Budget'
-import Expense from '../../../models/Expense'
-Budget
+import { createRequest, createResponse } from "node-mocks-http";
+import { budgets } from "../../mocks/budget";
+import { BudgetController } from "../../../controllers/BudgetController";
+import Budget from "../../../models/Budget";
+import Expense from "../../../models/Expense";
+Budget;
 
-jest.mock('../../../models/Budget', () => ({
-    findAll: jest.fn(),
-    create: jest.fn(),
-    findByPk: jest.fn()
-}))
+jest.mock("../../../models/Budget", () => ({
+  findAll: jest.fn(),
+  create: jest.fn(),
+  findByPk: jest.fn(),
+}));
 
-describe('BudgetController.getAll', () => {
+describe("BudgetController.getAll", () => {
+  beforeEach(() => {
+    (Budget.findAll as jest.Mock).mockReset();
+    (Budget.findAll as jest.Mock).mockImplementation((options) => {
+      const updatedBudgets = budgets.filter(
+        (budget) => budget.userId === options.where.userId
+      );
+      return Promise.resolve(updatedBudgets);
+    });
+  });
 
-    beforeEach(() => {
-        (Budget.findAll as jest.Mock).mockReset();
-        (Budget.findAll as jest.Mock).mockImplementation((options) => {
-            const updatedBudgets = budgets.filter(budget => budget.userId === options.where.userId);
-            return Promise.resolve(updatedBudgets)
-        })
-    })
+  it("should retrieve 2 budgets for userId 1", async () => {
+    const req = createRequest({
+      method: "GET",
+      url: "/api/budgets",
+      user: { id: 1 },
+    });
+    const res = createResponse();
+    await BudgetController.getAll(req, res);
 
-    it('should retrieve 2 budgets for userId 1', async () => {
+    const data = res._getJSONData();
+    expect(data).toHaveLength(2);
+    expect(res.statusCode).toBe(200);
+    expect(res.status).not.toBe(404);
+  });
 
-        const req = createRequest({
-            method: 'GET',
-            url: '/api/budgets',
-            user: { id: 1 }
-        })
-        const res = createResponse();
-        await BudgetController.getAll(req, res)
+  it("should retrieve 1 budget for userId 2", async () => {
+    const req = createRequest({
+      method: "GET",
+      url: "/api/budgets",
+      user: { id: 2 },
+    });
+    const res = createResponse();
+    await BudgetController.getAll(req, res);
 
-        const data = res._getJSONData()
-        expect(data).toHaveLength(2)
-        expect(res.statusCode).toBe(200)
-        expect(res.status).not.toBe(404)
-    })
+    const data = res._getJSONData();
+    expect(data).toHaveLength(1);
+    expect(res.statusCode).toBe(200);
+    expect(res.status).not.toBe(404);
+  });
 
-    it('should retrieve 1 budget for userId 2', async () => {
-        const req = createRequest({
-            method: 'GET',
-            url: '/api/budgets',
-            user: { id: 2 }
-        })
-        const res = createResponse();
-        await BudgetController.getAll(req, res)
+  it("should retrieve 0 budgets for userId 10", async () => {
+    const req = createRequest({
+      method: "GET",
+      url: "/api/budgets",
+      user: { id: 10 },
+    });
+    const res = createResponse();
+    await BudgetController.getAll(req, res);
 
-        const data = res._getJSONData()
-        expect(data).toHaveLength(1)
-        expect(res.statusCode).toBe(200)
-        expect(res.status).not.toBe(404)
-    })
+    const data = res._getJSONData();
+    expect(data).toHaveLength(0);
+    expect(res.statusCode).toBe(200);
+    expect(res.status).not.toBe(404);
+  });
 
-    it('should retrieve 0 budgets for userId 10', async () => {
-        const req = createRequest({
-            method: 'GET',
-            url: '/api/budgets',
-            user: { id: 10 }
-        })
-        const res = createResponse();
-        await BudgetController.getAll(req, res)
+  it("should handle errors when fetching budgets", async () => {
+    const req = createRequest({
+      method: "GET",
+      url: "/api/budgets",
+      user: { id: 100 },
+    });
+    const res = createResponse();
+    (Budget.findAll as jest.Mock).mockRejectedValue(new Error());
+    await BudgetController.getAll(req, res);
 
-        const data = res._getJSONData()
-        expect(data).toHaveLength(0)
-        expect(res.statusCode).toBe(200)
-        expect(res.status).not.toBe(404)
-    })
+    expect(res.statusCode).toBe(500);
+    expect(res._getJSONData()).toEqual({ error: "Hubo un error" });
+  });
+});
 
-    it('should handle errors when fetching budgets', async () => {
-        const req = createRequest({
-            method: 'GET',
-            url: '/api/budgets',
-            user: { id: 100 }
-        })
-        const res = createResponse();
-        (Budget.findAll as jest.Mock).mockRejectedValue(new Error)
-        await BudgetController.getAll(req, res)
+describe("BudgetController.create", () => {
+  it("Should create a new budget and respond with statusCode 201", async () => {
+    const mockBudget = {
+      save: jest.fn().mockResolvedValue(true),
+    };
 
-        expect(res.statusCode).toBe(500)
-        expect(res._getJSONData()).toEqual({ error: 'Hubo un error' })
-    })
-})
+    (Budget.create as jest.Mock).mockResolvedValue(mockBudget);
+    const req = createRequest({
+      method: "POST",
+      url: "/api/budgets",
+      user: { id: 1 },
+      body: { name: "Presupuesto prueba", amount: 1000 },
+    });
+    const res = createResponse();
+    await BudgetController.create(req, res);
 
-describe('BudgetController.create', () => {
-    it('Should create a new budget and respond with statusCode 201', async () => {
-        const mockBudget = {
-            save: jest.fn().mockResolvedValue(true)
-        };
+    const data = res._getJSONData();
 
-        (Budget.create as jest.Mock).mockResolvedValue(mockBudget)
-        const req = createRequest({
-            method: 'POST',
-            url: '/api/budgets',
-            user: { id: 1 },
-            body: { name: 'Presupuesto prueba', amount: 1000 }
-        })
-        const res = createResponse();
-        await BudgetController.create(req, res)
+    expect(res.statusCode).toBe(201);
+    expect(data).toBe("Presupuesto creado correctamente");
+    expect(mockBudget.save).toHaveBeenCalled();
+    expect(mockBudget.save).toHaveBeenCalledTimes(1);
+    expect(Budget.create).toHaveBeenCalledWith(req.body);
+  });
 
-        const data = res._getJSONData()
+  it("Should handle budget creation error", async () => {
+    const mockBudget = {
+      save: jest.fn(),
+    };
 
-        expect(res.statusCode).toBe(201)
-        expect(data).toBe('Presupuesto creado correctamente')
-        expect(mockBudget.save).toHaveBeenCalled()
-        expect(mockBudget.save).toHaveBeenCalledTimes(1)
-        expect(Budget.create).toHaveBeenCalledWith(req.body)
-    })
+    (Budget.create as jest.Mock).mockRejectedValue(new Error());
+    const req = createRequest({
+      method: "POST",
+      url: "/api/budgets",
+      user: { id: 1 },
+      body: { name: "Presupuesto prueba", amount: 1000 },
+    });
+    const res = createResponse();
+    await BudgetController.create(req, res);
 
-    it('Should handle budget creation error', async () => {
-        const mockBudget = {
-            save: jest.fn()
-        };
+    const data = res._getJSONData();
 
-        (Budget.create as jest.Mock).mockRejectedValue(new Error)
-        const req = createRequest({
-            method: 'POST',
-            url: '/api/budgets',
-            user: { id: 1 },
-            body: { name: 'Presupuesto prueba', amount: 1000 }
-        })
-        const res = createResponse();
-        await BudgetController.create(req, res)
+    expect(res.statusCode).toBe(500);
+    expect(res._getJSONData()).toEqual({ error: "Hubo un error" });
+    expect(mockBudget.save).not.toHaveBeenCalled();
+    expect(Budget.create).toHaveBeenCalledWith(req.body);
+  });
+});
 
-        const data = res._getJSONData()
+describe("BudgetController.getById", () => {
+  beforeEach(() => {
+    (Budget.findByPk as jest.Mock).mockImplementation((id) => {
+      const budget = budgets.filter((b) => b.id === id)[0];
+      return Promise.resolve(budget);
+    });
+  });
 
-        expect(res.statusCode).toBe(500)
-        expect(res._getJSONData()).toEqual({ error: 'Hubo un error' })
-        expect(mockBudget.save).not.toHaveBeenCalled()
-        expect(Budget.create).toHaveBeenCalledWith(req.body)
-    })
-})
+  it("should return a busget with ID 1 and 3 expenses", async () => {
+    const req = createRequest({
+      method: "GET",
+      url: "/api/budgets/:budgetId",
+      budget: { id: 1 },
+    });
+    const res = createResponse();
+    await BudgetController.getById(req, res);
 
-describe('BudgetController.getById', () => {
-    beforeEach(() => {
-        (Budget.findByPk as jest.Mock).mockImplementation((id) => {
-            const budget = budgets.filter(b => b.id === id)[0];
-            return Promise.resolve(budget)
-        })
-    })
+    const data = res._getJSONData();
+    expect(res.statusCode).toBe(200);
+    expect(data.expenses).toHaveLength(3);
+    expect(Budget.findByPk).toHaveBeenCalled();
+    expect(Budget.findByPk).toHaveBeenCalledWith(req.budget.id, {
+      include: [Expense],
+    });
+  });
 
-    it('should return a busget with ID 1 and 3 expenses', async () => {
-        const req = createRequest({
-            method: 'GET',
-            url: '/api/budgets/:budgetId',
-            budget: { id: 1 }
-        })
-        const res = createResponse();
-        await BudgetController.getById(req, res)
+  it("should return a busget with ID 2 and 2 expenses", async () => {
+    const req = createRequest({
+      method: "GET",
+      url: "/api/budgets/:budgetId",
+      budget: { id: 2 },
+    });
+    const res = createResponse();
+    await BudgetController.getById(req, res);
 
-        const data = res._getJSONData()
-        expect(res.statusCode).toBe(200)
-        expect(data.expenses).toHaveLength(3)
-        expect(Budget.findByPk).toHaveBeenCalled()
-        expect(Budget.findByPk).toHaveBeenCalledWith(req.budget.id, {
-            include: [Expense]
-        })
+    const data = res._getJSONData();
+    expect(res.statusCode).toBe(200);
+    expect(data.expenses).toHaveLength(2);
+  });
 
-    })
+  it("should return a busget with ID 3 and 0 expenses", async () => {
+    const req = createRequest({
+      method: "GET",
+      url: "/api/budgets/:budgetId",
+      budget: { id: 3 },
+    });
+    const res = createResponse();
+    await BudgetController.getById(req, res);
 
-    it('should return a busget with ID 2 and 2 expenses', async () => {
-        const req = createRequest({
-            method: 'GET',
-            url: '/api/budgets/:budgetId',
-            budget: { id: 2 }
-        })
-        const res = createResponse();
-        await BudgetController.getById(req, res)
+    const data = res._getJSONData();
+    expect(res.statusCode).toBe(200);
+    expect(data.expenses).toHaveLength(0);
+  });
+});
 
-        const data = res._getJSONData()
-        expect(res.statusCode).toBe(200)
-        expect(data.expenses).toHaveLength(2)
+describe("BudgetController.updateById", () => {
+  it("should update the budget and return a success message", async () => {
+    const mockBudget = {
+      update: jest.fn().mockResolvedValue(true),
+    };
 
-    })
+    const req = createRequest({
+      method: "PUT",
+      url: "/api/budgets/:budgetId",
+      budget: mockBudget,
+      body: { name: "Presupuesto actualizado", amount: 5000 },
+    });
+    const res = createResponse();
+    await BudgetController.updateById(req, res);
 
-    it('should return a busget with ID 3 and 0 expenses', async () => {
-        const req = createRequest({
-            method: 'GET',
-            url: '/api/budgets/:budgetId',
-            budget: { id: 3 }
-        })
-        const res = createResponse();
-        await BudgetController.getById(req, res)
+    const data = res._getJSONData();
+    expect(res.statusCode).toBe(200);
+    expect(data).toBe("Presupuesto actualizado correctamente");
+    expect(mockBudget.update).toHaveBeenCalled();
+    expect(mockBudget.update).toHaveBeenCalledTimes(1);
+    expect(mockBudget.update).toHaveBeenCalledWith(req.body);
+  });
+});
 
-        const data = res._getJSONData()
-        expect(res.statusCode).toBe(200)
-        expect(data.expenses).toHaveLength(0)
+describe("BudgetController.deleteById", () => {
+  it("should delete the budget and return a success message", async () => {
+    const mockBudget = {
+      destroy: jest.fn().mockResolvedValue(true),
+    };
 
-    })
-})
+    const req = createRequest({
+      method: "DELETE",
+      url: "/api/budgets/:budgetId",
+      budget: mockBudget,
+    });
+    const res = createResponse();
+    await BudgetController.deleteById(req, res);
 
-describe('BudgetController.updateById', () => {
-    it('should update the budget and return a success message', async () => {
-        const mockBudget = {
-            update: jest.fn().mockResolvedValue(true)
-        };
-
-        const req = createRequest({
-            method: 'PUT',
-            url: '/api/budgets/:budgetId',
-            budget: mockBudget,
-            body: { name: 'Presupuesto actualizado', amount: 5000 }
-        })
-        const res = createResponse();
-        await BudgetController.updateById(req, res)
-
-        const data = res._getJSONData()
-        expect(res.statusCode).toBe(200)
-        expect(data).toBe('Presupuesto actualizado correctamente')
-        expect(mockBudget.update).toHaveBeenCalled()
-        expect(mockBudget.update).toHaveBeenCalledTimes(1)
-        expect(mockBudget.update).toHaveBeenCalledWith(req.body)
-    })
-})
-
-describe('BudgetController.deleteById', () => {
-    it('should delete the budget and return a success message', async () => {
-        const mockBudget = {
-            destroy: jest.fn().mockResolvedValue(true)
-        };
-
-        const req = createRequest({
-            method: 'DELETE',
-            url: '/api/budgets/:budgetId',
-            budget: mockBudget
-        })
-        const res = createResponse();
-        await BudgetController.deleteById(req, res)
-
-        const data = res._getJSONData()
-        expect(res.statusCode).toBe(200)
-        expect(data).toBe('Presupuesto eliminado correctamente')
-        expect(mockBudget.destroy).toHaveBeenCalled()
-        expect(mockBudget.destroy).toHaveBeenCalledTimes(1)
-    })
-})
+    const data = res._getJSONData();
+    expect(res.statusCode).toBe(200);
+    expect(data).toBe("Presupuesto eliminado correctamente");
+    expect(mockBudget.destroy).toHaveBeenCalled();
+    expect(mockBudget.destroy).toHaveBeenCalledTimes(1);
+  });
+});

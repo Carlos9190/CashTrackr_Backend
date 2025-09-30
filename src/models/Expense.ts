@@ -1,28 +1,35 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo, AllowNull } from "sequelize-typescript"
-import Budget from "./Budget"
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  ForeignKey,
+  BelongsTo,
+  AllowNull,
+} from "sequelize-typescript";
+import Budget from "./Budget";
 
 @Table({
-    tableName: 'expenses'
+  tableName: "expenses",
 })
-
 class Expense extends Model {
-    @AllowNull(false)
-    @Column({
-        type: DataType.STRING(100)
-    })
-    declare name: string
+  @AllowNull(false)
+  @Column({
+    type: DataType.STRING(100),
+  })
+  declare name: string;
 
-    @AllowNull(false)
-    @Column({
-        type: DataType.DECIMAL
-    })
-    declare amount: number
+  @AllowNull(false)
+  @Column({
+    type: DataType.DECIMAL,
+  })
+  declare amount: number;
 
-    @ForeignKey(() => Budget)
-    declare budgetId: number
+  @ForeignKey(() => Budget)
+  declare budgetId: number;
 
-    @BelongsTo(() => Budget)
-    declare budget: Budget
+  @BelongsTo(() => Budget)
+  declare budget: Budget;
 }
 
-export default Expense
+export default Expense;

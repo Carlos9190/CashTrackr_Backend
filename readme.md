@@ -1,7 +1,8 @@
 # CashTrackr Backend
 
 ## 📌 Description
-This is the backend for the **CashTrackr** project, a financial tracking application developed with the **PENN stack** (*PostgreSQL, Express.js, Next.js, and Node.js*). It provides a RESTful API for managing user transactions and financial data.
+
+This is the backend for the **CashTrackr** project, a financial tracking application developed with the **PENN stack** (_PostgreSQL, Express.js, Next.js, and Node.js_). It provides a RESTful API for managing user transactions and financial data.
 
 ---
 
@@ -20,18 +21,22 @@ This is the backend for the **CashTrackr** project, a financial tracking applica
 ## 🚀 Installation
 
 ### 1️⃣ Clone the repository
+
 ```bash
 git clone https://github.com/Carlos9190/CashTrackr_Backend.git
 cd CashTrackr_Backend
 ```
 
 ### 2️⃣ Install dependencies
+
 ```bash
 npm install  # or yarn install
 ```
 
 ### 3️⃣ Configure environment variables
+
 Create a `.env` file in the project's root directory and define the following variables:
+
 ```env
 # 🔗 Database connection
 DATABASE_URL=your_postgresql_connection_string
@@ -51,16 +56,19 @@ JWT_SECRET=your_super_secure_secret
 # 🌍 Node environment
 NODE_ENV=development
 ```
+
 If you want to run the project in production, change `NODE_ENV` to `production`:
 
 ```env
 NODE_ENV=production
 ```
+
 ---
 
 ## 📌 Usage
 
 ### 🔥 Start the Server
+
 ```bash
 # 🚀 For Postman testing in local development:
 npm run dev:api  # or yarn dev:api
@@ -78,6 +86,7 @@ npm run dev  # or yarn dev
 ## 📦 Dependencies
 
 ### 📌 Main Dependencies
+
 ```json
 {
   "bcrypt": "^5.1.1",
@@ -96,6 +105,7 @@ npm run dev  # or yarn dev
 ```
 
 ### 🔧 Development Dependencies
+
 ```json
 {
   "@types/bcrypt": "^5.0.2",
@@ -122,13 +132,17 @@ npm run dev  # or yarn dev
 1️⃣ **Fork the repository**.
 
 2️⃣ **Create a branch** for your new feature or fix:
-   ```bash
-   git checkout -b new-feature
-   ```
+
+```bash
+git checkout -b new-feature
+```
+
 3️⃣ **Make changes and commit them**:
-   ```bash
-   git commit -m "Add new feature"
-   ```
+
+```bash
+git commit -m "Add new feature"
+```
+
 4️⃣ **Submit a Pull Request** for review.
 
 ## 📬 Contact
