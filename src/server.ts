@@ -9,10 +9,9 @@ export async function connectDB() {
     try {
         await db.authenticate()
         db.sync()
-        // console.log(colors.blue.bold.italic('Conexión exitosa a la DB'))
+        console.log(colors.blue.bold.italic('Successful connection to the DB'))
     } catch (error) {
-        // console.log(error)
-        // console.log(colors.red.bold.italic('Conexión fallida a la DB'))
+        console.log(colors.red.bold.italic('Failed to connect to the DB'))
     }
 }
 connectDB()

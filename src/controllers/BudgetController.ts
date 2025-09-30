@@ -16,8 +16,7 @@ export class BudgetController {
 
             res.json(budgets)
         } catch (error) {
-            //console.log(error)
-            res.status(500).json({ error: 'Hubo un error' })
+            res.status(500).json({ error: 'There was an error' })
         }
     }
 
@@ -26,10 +25,9 @@ export class BudgetController {
             const budget = await Budget.create(req.body)
             budget.userId = req.user.id
             await budget.save()
-            res.status(201).json('Presupuesto creado correctamente')
+            res.status(201).json('Budget successfully created')
         } catch (error) {
-            //console.log(error)
-            res.status(500).json({ error: 'Hubo un error' })
+            res.status(500).json({ error: 'There was an error' })
         }
     }
 
@@ -43,11 +41,11 @@ export class BudgetController {
 
     static updateById = async (req: Request, res: Response) => {
         await req.budget.update(req.body)
-        res.json('Presupuesto actualizado correctamente')
+        res.json('Budget successfully updated')
     }
 
     static deleteById = async (req: Request, res: Response) => {
         await req.budget.destroy()
-        res.json('Presupuesto eliminado correctamente')
+        res.json('Budget successfully deleted')
     }
 }

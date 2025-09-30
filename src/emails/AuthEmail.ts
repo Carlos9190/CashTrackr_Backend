@@ -1,37 +1,59 @@
-import { transport } from "../config/nodemailer"
+import { transport } from "../config/nodemailer";
 
 type EmailType = {
-    name: string
-    email: string
-    token: string
-}
+  name: string;
+  email: string;
+  token: string;
+};
 
 export class AuthEmail {
-    static sendConfirmationEmail = async (user: EmailType) => {
-        const email = await transport.sendMail({
-            from: 'CashTracker <admin@carlos-fullstack.com>',
-            to: user.email,
-            subject: 'CashTrackr - Confirma tu cuenta',
-            html: `<p>Hola: ${user.name}, has creado tu cuenta en CashTracker</p>
-                <P>Visita el siguiente enlace:</P>
-                <a href="${process.env.FRONTEND_URL}/auth/confirm-account">Confirmar cuenta</a>
-                <p>e ingresa el código: <b>${user.token}</b></p>`
-        })
+  static sendConfirmationEmail = async (user: EmailType) => {
+    await transport.sendMail({
+      from: "CashTrackr <admin@carlos-fullstack.com>",
+      to: user.email,
+      subject: "CashTrackr - Confirm your account",
+      text: "CashTrackr - Confirm your account",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eaeaea; padding: 20px; border-radius: 8px;">
+          <h2 style="text-align: center; color: #f59e0b;">CashTrackr</h2>
+          <p>Hello <strong>${user.name}</strong>,</p>
+          <p>You've just created a new account on <strong>CashTrackr</strong>. You're almost done! Please confirm your account by clicking the button below and entering the code:</p>
 
-        // console.log('Mensaje enviado', email.messageId)
-    }
+          <div style="background-color: #f9f9f9; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 6px; border: 1px solid #e2e2e2;">
+            ${user.token}
+          </div>
+          <p>This code expires in 10 minutes.</p>
 
-    static sendPasswordResetToken = async (user: EmailType) => {
-        const email = await transport.sendMail({
-            from: 'CashTracker <admin@carlos-fullstack.com>',
-            to: user.email,
-            subject: 'CashTrackr - Reestablece tu password',
-            html: `<p>Hola: ${user.name}, has solicitado reestablecer en CashTracker</p>
-                <P>Visita el siguiente enlace:</P>
-                <a href="${process.env.FRONTEND_URL}/auth/new-password">Reestablecer password</a>
-                <p>e ingresa el código: <b>${user.token}</b></p>`
-        })
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e2e2;" />
+          <p>Sincerely,</p>
+          <p style="font-weight: bold; margin: 0;">The CashTrackr team</p>
+        </div>
+      `,
+    });
+  };
 
-        // console.log('Mensaje enviado', email.messageId)
-    }
+  static sendPasswordResetToken = async (user: EmailType) => {
+    await transport.sendMail({
+      from: "CashTrackr <admin@carlos-fullstack.com>",
+      to: user.email,
+      subject: "CashTrackr - Reset your password",
+      text: "CashTrackr - Reset your password",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eaeaea; padding: 20px; border-radius: 8px;">
+          <h2 style="text-align: center; color: #f59e0b;">CashTrackr</h2>
+          <p>Hello <strong>${user.name}</strong>,</p>
+          <p>We've received a request to reset your password. Reset it by clicking the button below and entering the code:</p>
+
+          <div style="background-color: #f9f9f9; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 6px; border: 1px solid #e2e2e2;">
+            ${user.token}
+          </div>
+          <p>This code expires in 10 minutes.</p>
+
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e2e2;" />
+          <p>Sincerely,</p>
+          <p style="font-weight: bold; margin: 0;">The CashTrackr team</p>
+        </div>
+      `,
+    });
+  };
 }

@@ -11,25 +11,23 @@ declare global {
 }
 
 export const validateExpenseInput = async (req: Request, res: Response, next: NextFunction) => {
-
     await body('name')
-        .notEmpty().withMessage('El nombre del gasto es obligatorio')
+        .notEmpty().withMessage('The expense name is required')
         .run(req)
 
     await body('amount')
-        .notEmpty().withMessage('La cantidad del gasto es obligatorio')
-        .isNumeric().withMessage('La cantidad no es válida')
-        .custom(value => value > 0).withMessage('El gasto debe ser mayor a 0')
+        .notEmpty().withMessage('The expense amount is required')
+        .isNumeric().withMessage('The amount is not valid')
+        .custom(value => value > 0).withMessage('The expense must be greater than 0')
         .run(req)
 
     next()
 }
 
 export const validateExpenseId = async (req: Request, res: Response, next: NextFunction) => {
-
     await param('expenseId')
         .isInt()
-        .custom(value => value > 0).withMessage('ID no válido')
+        .custom(value => value > 0).withMessage('Invalid ID')
         .run(req)
 
     let errors = validationResult(req)
@@ -46,7 +44,7 @@ export const validateExpenseExists = async (req: Request, res: Response, next: N
         const { expenseId } = req.params
         const expense = await Expense.findByPk(expenseId)
         if (!expense) {
-            const error = new Error('Gasto no encontrado')
+            const error = new Error('Expense not found')
             res.status(404).json({ error: error.message })
             return
         }
@@ -55,16 +53,14 @@ export const validateExpenseExists = async (req: Request, res: Response, next: N
 
         next()
     } catch (error) {
-        //console.log(error)
-        res.status(500).json({ error: 'Hubo un error' })
+        res.status(500).json({ error: 'There was an error' })
     }
 }
 
 export const belongsToBudget = async (req: Request, res: Response, next: NextFunction) => {
-
-    if(req.budget.id !== req.expense.budgetId){
-        const error = new Error('Acción no válida')
-        res.status(403).json({error: error.message})
+    if (req.budget.id !== req.expense.budgetId) {
+        const error = new Error('Invalid action')
+        res.status(403).json({ error: error.message })
         return
     }
 

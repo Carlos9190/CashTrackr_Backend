@@ -12,8 +12,8 @@ declare global {
 
 export const validateBudgetId = async (req: Request, res: Response, next: NextFunction) => {
     await param('budgetId')
-        .isInt().withMessage('ID no válido').bail()
-        .custom(value => value > 0).withMessage('ID no válido').bail()
+        .isInt().withMessage('Invalid ID').bail()
+        .custom(value => value > 0).withMessage('Invalid ID').bail()
         .run(req)
 
     let errors = validationResult(req)
@@ -29,7 +29,7 @@ export const validateBudgetExists = async (req: Request, res: Response, next: Ne
         const { budgetId } = req.params
         const budget = await Budget.findByPk(budgetId)
         if (!budget) {
-            const error = new Error('Presupuesto no encontrado')
+            const error = new Error('Budget not found')
             res.status(404).json({ error: error.message })
             return
         }
@@ -38,21 +38,19 @@ export const validateBudgetExists = async (req: Request, res: Response, next: Ne
 
         next()
     } catch (error) {
-        //console.log(error)
-        res.status(500).json({ error: 'Hubo un error' })
+        res.status(500).json({ error: 'There was an error' })
     }
 }
 
 export const validateBudgetInput = async (req: Request, res: Response, next: NextFunction) => {
-
     await body('name')
-        .notEmpty().withMessage('El nombre del presupuesto es obligatorio')
+        .notEmpty().withMessage('The budget name is required')
         .run(req)
 
     await body('amount')
-        .notEmpty().withMessage('La cantidad del presupuesto es obligatorio')
-        .isNumeric().withMessage('La cantidad no es válida')
-        .custom(value => value > 0).withMessage('El presupuesto debe ser mayor a 0')
+        .notEmpty().withMessage('The budget amount is required')
+        .isNumeric().withMessage('The amount is not valid')
+        .custom(value => value > 0).withMessage('The budget must be greater than 0')
         .run(req)
 
     next()
@@ -60,7 +58,7 @@ export const validateBudgetInput = async (req: Request, res: Response, next: Nex
 
 export function hasAccess(req: Request, res: Response, next: NextFunction) {
     if (req.budget.userId !== req.user.id) {
-        const error = new Error('Acción no válida')
+        const error = new Error('Invalid action')
         res.status(401).json({ error: error.message })
         return
     }

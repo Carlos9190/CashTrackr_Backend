@@ -331,7 +331,7 @@ router.post('/reset-password/:token',
         .isLength({ min: 8 })
         .withMessage('El password es muy corto, mínimo 8 caracteres'),
     handleInputErrors,
-    AuthController.restePasswordWithToken
+    AuthController.resetPasswordWithToken
 )
 &nbsp;
 router.get('/user',
