@@ -1,7 +1,7 @@
 # CashTrackr Backend
 
 ## 📌 Description
-This is the backend for the **CashTrackr** project, a financial tracking application developed with the **PEN stack** (*PostgreSQL, Express.js, Next.js, and Node.js*). It provides a RESTful API for managing user transactions and financial data.
+This is the backend for the **CashTrackr** project, a financial tracking application developed with the **PENN stack** (*PostgreSQL, Express.js, Next.js, and Node.js*). It provides a RESTful API for managing user transactions and financial data.
 
 ---
 
